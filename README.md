@@ -1,3 +1,7 @@
+# metal_gpu
+Working with Metal GPU in C++ and Swift
+
+## Resources
 https://developer.apple.com/documentation/metal/performing_calculations_on_a_gpu
 https://developer.apple.com/documentation/metal/shader_libraries/building_a_library_with_metal_s_command-line_tools
 
