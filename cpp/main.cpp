@@ -94,7 +94,7 @@ int main() {
   float* result = (float*)resultBuf->contents();
 
   for (int i = 0; i < 10; i++) {
-    __builtin_printf("%f + %f + %f = %f\n", r1[i], r2[i], r3[i], result[i]);
+    printf("%f + %f + %f = %f\n", r1[i], r2[i], r3[i], result[i]);
   }
   /////////////////////////////////////////////////////////////////////////////
 
