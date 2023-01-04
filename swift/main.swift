@@ -39,26 +39,6 @@ let additionGPUFunction = gpuFunctionLibrary?.makeFunction(name: "add")
 var additionComputePipelineState: MTLComputePipelineState!
 additionComputePipelineState = try! device?.makeComputePipelineState(function: additionGPUFunction!)
 
-// Create the buffers to be sent to the gpu from our arrays
-let arr1Buff = device?.makeBuffer(
-  bytes: arr1,
-  length: MemoryLayout<Float>.size * count,
-  options: .storageModeShared)
-
-let arr2Buff = device?.makeBuffer(
-  bytes: arr2,
-  length: MemoryLayout<Float>.size * count,
-  options: .storageModeShared)
-
-let arr3Buff = device?.makeBuffer(
-  bytes: arr3,
-  length: MemoryLayout<Float>.size * count,
-  options: .storageModeShared)
-
-let resultBuff = device?.makeBuffer(
-  length: MemoryLayout<Float>.size * count,
-  options: .storageModeShared)
-
 // A fifo queue for sending commands to the gpu
 let commandQueue = device?.makeCommandQueue()
 
@@ -68,6 +48,12 @@ let commandBuffer = commandQueue?.makeCommandBuffer()
 // Create an encoder to set vaulues on the compute function
 let commandEncoder = commandBuffer?.makeComputeCommandEncoder()
 commandEncoder?.setComputePipelineState(additionComputePipelineState)
+
+// Create the buffers to be sent to the gpu from our arrays
+let arr1Buff = device?.makeBuffer(bytes: arr1, length: MemoryLayout<Float>.size * count, options: .storageModeShared)
+let arr2Buff = device?.makeBuffer(bytes: arr2, length: MemoryLayout<Float>.size * count, options: .storageModeShared)
+let arr3Buff = device?.makeBuffer(bytes: arr3, length: MemoryLayout<Float>.size * count, options: .storageModeShared)
+let resultBuff = device?.makeBuffer(length: MemoryLayout<Float>.size * count, options: .storageModeShared)
 
 // Set the parameters of our gpu function
 commandEncoder?.setBuffer(arr1Buff, offset: 0, index: 0)

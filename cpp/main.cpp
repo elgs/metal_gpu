@@ -51,14 +51,6 @@ int main() {
 
   MTL::Function* pFunction = pLibrary->newFunction(NS::String::string("add", NS::UTF8StringEncoding));
 
-  MTL::Buffer* arr1Buf = pDevice->newBuffer(BUFFER_SIZE, MTL::ResourceStorageModeShared);
-  MTL::Buffer* arr2Buf = pDevice->newBuffer(BUFFER_SIZE, MTL::ResourceStorageModeShared);
-  MTL::Buffer* arr3Buf = pDevice->newBuffer(BUFFER_SIZE, MTL::ResourceStorageModeShared);
-  MTL::Buffer* resultBuf = pDevice->newBuffer(BUFFER_SIZE, MTL::ResourceStorageModeShared);
-  generateRandomFloatData(arr1Buf);
-  generateRandomFloatData(arr2Buf);
-  generateRandomFloatData(arr3Buf);
-
   MTL::CommandQueue* pCommandQueue = pDevice->newCommandQueue();
   MTL::CommandBuffer* pCommandBuffer = pCommandQueue->commandBuffer();
   MTL::ComputeCommandEncoder* pComputeCommandEncoder = pCommandBuffer->computeCommandEncoder();
@@ -68,6 +60,14 @@ int main() {
     handleErrors(pError);
   }
   pComputeCommandEncoder->setComputePipelineState(pComputePipelineState);
+
+  MTL::Buffer* arr1Buf = pDevice->newBuffer(BUFFER_SIZE, MTL::ResourceStorageModeShared);
+  MTL::Buffer* arr2Buf = pDevice->newBuffer(BUFFER_SIZE, MTL::ResourceStorageModeShared);
+  MTL::Buffer* arr3Buf = pDevice->newBuffer(BUFFER_SIZE, MTL::ResourceStorageModeShared);
+  MTL::Buffer* resultBuf = pDevice->newBuffer(BUFFER_SIZE, MTL::ResourceStorageModeShared);
+  generateRandomFloatData(arr1Buf);
+  generateRandomFloatData(arr2Buf);
+  generateRandomFloatData(arr3Buf);
 
   pComputeCommandEncoder->setBuffer(arr1Buf, 0, 0);
   pComputeCommandEncoder->setBuffer(arr2Buf, 0, 1);
