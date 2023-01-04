@@ -1,0 +1,9 @@
+{
+  "files.associations": {
+    "__config": "cpp",
+    "__bit_reference": "cpp",
+    "bitset": "cpp",
+    "chrono": "cpp",
+    "unordered_map": "cpp"
+  }
+}
