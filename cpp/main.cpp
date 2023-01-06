@@ -6,18 +6,18 @@
 #include <Metal/Metal.hpp>
 #include <QuartzCore/QuartzCore.hpp>
 
-// const char* kernelSrc = R"(
-//   #include <metal_stdlib>
-//   using namespace metal;
+const char* kernelSrc = R"(
+  #include <metal_stdlib>
+  using namespace metal;
 
-//   kernel void add(device const float* arr1  [[ buffer(0) ]],
-//                   device const float* arr2  [[ buffer(1) ]],
-//                   device const float* arr3  [[ buffer(2) ]],
-//                   device float* resultArray [[ buffer(3) ]],
-//                   uint   index [[ thread_position_in_grid ]]) {
-//     resultArray[index] = arr1[index] + arr2[index] + arr3[index];
-//   }
-// )";
+  [[kernel]] void add(const device float* arr1  [[ buffer(0) ]],
+                  const device float* arr2  [[ buffer(1) ]],
+                  const device float* arr3  [[ buffer(2) ]],
+                  device float* resultArray [[ buffer(3) ]],
+                  uint   index [[ thread_position_in_grid ]]) {
+    resultArray[index] = arr1[index] + arr2[index] + arr3[index];
+  }
+)";
 
 void handleErrors(NS::Error* pError) {
   if (pError) {
@@ -43,8 +43,8 @@ int main() {
 
   MTL::Device* pDevice = MTL::CreateSystemDefaultDevice();
 
-  // MTL::Library* pLibrary = pDevice->newLibrary(NS::String::string(kernelSrc, NS::UTF8StringEncoding), nullptr, &pError);
-  MTL::Library* pLibrary = pDevice->newLibrary(NS::String::string("../metal/compute.metallib", NS::UTF8StringEncoding), &pError);
+  MTL::Library* pLibrary = pDevice->newLibrary(NS::String::string(kernelSrc, NS::UTF8StringEncoding), nullptr, &pError);
+  // MTL::Library* pLibrary = pDevice->newLibrary(NS::String::string("../metal/compute.metallib", NS::UTF8StringEncoding), &pError);
   if (!pLibrary) {
     handleErrors(pError);
   }

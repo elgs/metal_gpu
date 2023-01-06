@@ -2,18 +2,18 @@ import MetalKit
 
 let count: Int = 10000
 
-// let kernelSrc = """
-//   #include <metal_stdlib>
-//   using namespace metal;
+let kernelSrc = """
+  #include <metal_stdlib>
+  using namespace metal;
 
-//   kernel void add(device const float* arr1  [[ buffer(0) ]],
-//                   device const float* arr2  [[ buffer(1) ]],
-//                   device const float* arr3  [[ buffer(2) ]],
-//                   device float* resultArray [[ buffer(3) ]],
-//                   uint   index [[ thread_position_in_grid ]]) {
-//     resultArray[index] = arr1[index] + arr2[index] + arr3[index];
-//   }
-// """;
+  [[kernel]] void add(const device float* arr1  [[ buffer(0) ]],
+                  const device float* arr2  [[ buffer(1) ]],
+                  const device float* arr3  [[ buffer(2) ]],
+                  device float* resultArray [[ buffer(3) ]],
+                  uint   index [[ thread_position_in_grid ]]) {
+    resultArray[index] = arr1[index] + arr2[index] + arr3[index];
+  }
+""";
 
 // Create our random arrays
 print("Start loading data...")
@@ -29,9 +29,8 @@ let startTime = CFAbsoluteTimeGetCurrent()
 let device = MTLCreateSystemDefaultDevice()
 
 // A library for getting our metal functions
-let gpuFunctionLibrary = try! device?.makeLibrary(
-  URL: URL(fileURLWithPath: "../metal/compute.metallib"))
-// let gpuFunctionLibrary = try! device?.makeLibrary(source: kernelSrc, options: nil)
+// let gpuFunctionLibrary = try! device?.makeLibrary(URL: URL(fileURLWithPath: "../metal/compute.metallib"))
+let gpuFunctionLibrary = try! device?.makeLibrary(source: kernelSrc, options: nil)
 
 // Grab our gpu function
 let additionGPUFunction = gpuFunctionLibrary?.makeFunction(name: "add")
