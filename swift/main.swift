@@ -76,8 +76,7 @@ commandBuffer?.commit()
 commandBuffer?.waitUntilCompleted()
 
 // Get the pointer to the beginning of our data
-var resultBufferPointer = resultBuff?.contents().bindMemory(
-  to: Float.self, capacity: MemoryLayout<Float>.size * count)
+var resultBufferPointer = resultBuff?.contents().bindMemory(to: Float.self, capacity: MemoryLayout<Float>.size * count)
 
 // Print out all of our new added together array information
 for i in 0..<3 {
