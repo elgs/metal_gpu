@@ -1,19 +1,17 @@
-#include <iostream>
 #include "metal-conv.hpp"
-
-void hook() {
-  char c;
-  std::cin.get(c);
-  while (c != '\n') {
-    std::cout << c;
-    std::cin.get(c);
-  }
-}
+#include <iostream>
 
 int main() {
   MetalConv* metalConv = new MetalConv();
-  metalConv->conv2d();
-  metalConv->conv2d();
-  hook();
+
+  char c;
+  while (true) {
+    if (c == 'q') {
+      break;
+    }
+    metalConv->conv2d();
+    std::cin.get(c);
+  }
+
   delete metalConv;
 }

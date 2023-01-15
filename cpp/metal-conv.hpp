@@ -30,7 +30,7 @@ const char* kernelSrc = R"(
   }
 )";
 
-const unsigned int ARRAY_LENGTH = 1000000;
+const unsigned int ARRAY_LENGTH = 1'000'000'000;
 const unsigned int BUFFER_SIZE = ARRAY_LENGTH * sizeof(float);
 
 void generateRandomFloatData(MTL::Buffer* buffer) {
@@ -66,6 +66,7 @@ MetalConv::~MetalConv() {
 }
 
 MetalConv::MetalConv() {
+  srand(time(0));
   NS::Error* pError = nullptr;
   pPool = NS::AutoreleasePool::alloc()->init();
 
@@ -85,6 +86,8 @@ MetalConv::MetalConv() {
 }
 
 void MetalConv::conv2d() {
+  auto start = std::chrono::steady_clock::now();
+
   MTL::CommandBuffer* pCommandBuffer = pCommandQueue->commandBuffer();
   MTL::ComputeCommandEncoder* pComputeCommandEncoder = pCommandBuffer->computeCommandEncoder();
   pComputeCommandEncoder->setComputePipelineState(pComputePipelineState);
@@ -110,8 +113,16 @@ void MetalConv::conv2d() {
 
   pComputeCommandEncoder->endEncoding();
 
+  auto stop1 = std::chrono::steady_clock::now();
+  auto deta1 = std::chrono::duration<double, std::milli>(stop1 - start).count();
+  printf("Time: %fms\n", deta1);
+
   // copy pointers
-  pCommandBuffer->addCompletedHandler([arr1Buf, arr2Buf, resultBuf](MTL::CommandBuffer* pCommandBuffer) {
+  pCommandBuffer->addCompletedHandler([arr1Buf, arr2Buf, resultBuf, stop1](MTL::CommandBuffer* pCommandBuffer) {
+    auto stop2 = std::chrono::steady_clock::now();
+    auto deta2 = std::chrono::duration<double, std::milli>(stop2 - stop1).count();
+    printf("Time: %fms\n", deta2);
+
     float* r1 = (float*)arr1Buf->contents();
     float* r2 = (float*)arr2Buf->contents();
     float* result = (float*)resultBuf->contents();
@@ -119,7 +130,6 @@ void MetalConv::conv2d() {
     for (int i = 0; i < (ARRAY_LENGTH > 5 ? 5 : ARRAY_LENGTH); i++) {
       printf("%f + %f = %f\n", r1[i], r2[i], result[i]);
     }
-    printf("done\n");
   });
 
   pCommandBuffer->commit();
