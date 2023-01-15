@@ -33,6 +33,7 @@ const unsigned int BUFFER_SIZE = ARRAY_LENGTH * sizeof(float);
 
 void generateRandomFloatData(MTL::Buffer* buffer) {
   float* dataPtr = (float*)buffer->contents();
+  // printf("%p\n", dataPtr);
   for (unsigned long int i = 0; i < ARRAY_LENGTH; ++i) {
     dataPtr[i] = float(rand() % 10);
   }
@@ -108,13 +109,16 @@ void MetalConv::conv2d() {
 
   pComputeCommandEncoder->endEncoding();
 
-  pCommandBuffer->addCompletedHandler([&](MTL::CommandBuffer* pCommandBuffer) {
+  // copy pointers
+  pCommandBuffer->addCompletedHandler([arr1Buf, arr2Buf, resultBuf](MTL::CommandBuffer* pCommandBuffer) {
     float* r1 = (float*)arr1Buf->contents();
     float* r2 = (float*)arr2Buf->contents();
     float* result = (float*)resultBuf->contents();
-    for (int i = 0; i < 10; i++) {
+    // printf("%p, %p, %p\n", r1, r2, result);
+    for (int i = 0; i < (ARRAY_LENGTH > 5 ? 5 : ARRAY_LENGTH); i++) {
       printf("%f + %f = %f\n", r1[i], r2[i], result[i]);
     }
+    printf("done\n");
   });
 
   pCommandBuffer->commit();
