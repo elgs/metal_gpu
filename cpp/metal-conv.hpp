@@ -82,6 +82,7 @@ MetalConv::MetalConv() {
 }
 
 void MetalConv::conv2d() {
+  NS::AutoreleasePool* pPoolLocal = NS::AutoreleasePool::alloc()->init();
   MTL::CommandBuffer* pCommandBuffer = pCommandQueue->commandBuffer();
   MTL::ComputeCommandEncoder* pComputeCommandEncoder = pCommandBuffer->computeCommandEncoder();
   pComputeCommandEncoder->setComputePipelineState(pComputePipelineState);
@@ -108,31 +109,16 @@ void MetalConv::conv2d() {
   pComputeCommandEncoder->endEncoding();
 
   pCommandBuffer->addCompletedHandler([&](MTL::CommandBuffer* pCommandBuffer) {
-    float* resultData = (float*)resultBuf->contents();
     float* r1 = (float*)arr1Buf->contents();
     float* r2 = (float*)arr2Buf->contents();
     float* result = (float*)resultBuf->contents();
     for (int i = 0; i < 10; i++) {
       printf("%f + %f = %f\n", r1[i], r2[i], result[i]);
     }
-
-    // arr1Buf->release();
-    // arr2Buf->release();
-    // arr3Buf->release();
-    resultBuf->release();
-
-    // pCommandBuffer->release();
-    pComputeCommandEncoder->release();
-    pCommandQueue->release();
-    pComputePipelineState->release();
-    pFunction->release();
-    pLibrary->release();
-    pDevice->release();
-
-    pPool->release();
   });
 
   pCommandBuffer->commit();
+  pPoolLocal->release();
 }
 
 #endif // METAL_CONV_HPP
