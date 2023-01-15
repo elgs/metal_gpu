@@ -20,10 +20,12 @@ const char* kernelSrc = R"(
   #include <metal_stdlib>
   using namespace metal;
 
-  [[kernel]] void add(const device float* arr1  [[ buffer(0) ]],
-                  const device float* arr2  [[ buffer(1) ]],
-                  device float* resultArray [[ buffer(2) ]],
-                  uint   index [[ thread_position_in_grid ]]) {
+  [[kernel]] void add(
+    const device float* arr1  [[ buffer(0) ]],
+    const device float* arr2  [[ buffer(1) ]],
+    device float* resultArray [[ buffer(2) ]],
+    uint   index [[ thread_position_in_grid ]]
+  ) {
     resultArray[index] = arr1[index] + arr2[index];
   }
 )";
@@ -83,7 +85,6 @@ MetalConv::MetalConv() {
 }
 
 void MetalConv::conv2d() {
-  NS::AutoreleasePool* pPoolLocal = NS::AutoreleasePool::alloc()->init();
   MTL::CommandBuffer* pCommandBuffer = pCommandQueue->commandBuffer();
   MTL::ComputeCommandEncoder* pComputeCommandEncoder = pCommandBuffer->computeCommandEncoder();
   pComputeCommandEncoder->setComputePipelineState(pComputePipelineState);
@@ -122,7 +123,6 @@ void MetalConv::conv2d() {
   });
 
   pCommandBuffer->commit();
-  pPoolLocal->release();
 }
 
 #endif // METAL_CONV_HPP
