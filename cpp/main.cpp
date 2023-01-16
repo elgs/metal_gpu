@@ -18,15 +18,17 @@ int main() {
       break;
     }
     metalConv->conv2d(&input, &kernel, output);
+    printf("output: %d x %d\n", output->width, output->height);
     for (int i = 0; i < output->height; i++) {
       for (int j = 0; j < output->width; j++) {
-        std::cout << output->data[i * output->width + j] << " ";
+        printf("%f ", output->data[i * output->width + j]);
       }
-      std::cout << std::endl;
+      printf("\n");
     }
 
     std::cin.get(c);
   }
 
+  delete output;
   delete metalConv;
 }

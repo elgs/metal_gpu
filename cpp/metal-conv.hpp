@@ -41,7 +41,19 @@ const char* kernelSrc = R"(
 
     const        uint   index   [[ thread_position_in_grid ]]
   ) {
-    out[index] = outWidth + outHeight;
+    float sum = 0.0f;
+    const int x = index % inWidth;
+    const int y = index / inWidth;
+    for (int ky = 0; ky < kerHeight; ++ky) {
+      for (int kx = 0; kx < kerWidth; ++kx) {
+        const int ix = x * strideX + kx - paddingX;
+        const int iy = y * strideY + ky - paddingY;
+        if (ix >= 0 && iy >= 0 && ix < inWidth && iy < inHeight) {
+          sum += in[iy * inWidth + ix] * ker[ky * kerWidth + kx];
+        }
+      }
+    }
+    out[y * outWidth + x] = sum;
   }
 )";
 
@@ -147,14 +159,7 @@ void MetalConv::conv2d(
   pComputeCommandEncoder->dispatchThreads(gridSize, threadgroupSize);
   pComputeCommandEncoder->endEncoding();
 
-  auto stop1 = std::chrono::steady_clock::now();
-  auto delta1 = std::chrono::duration<double, std::milli>(stop1 - start).count();
-  printf("Time preparing data: %fms\n", delta1);
-
-  auto callback = [output, outputBuffer, stop1](MTL::CommandBuffer* pCommandBuffer) {
-    auto stop2 = std::chrono::steady_clock::now();
-    auto delta2 = std::chrono::duration<double, std::milli>(stop2 - stop1).count();
-    printf("Time on GPU: %fms\n", delta2);
+  auto callback = [output, outputBuffer](MTL::CommandBuffer* pCommandBuffer) {
     output->data = (float*)outputBuffer->contents();
   };
 
