@@ -1,6 +1,16 @@
 #include "metal-conv.hpp"
 #include <iostream>
 
+void printOutput(const Mat2d<float>& output) {
+  printf("output: %d x %d\n", output.width, output.height);
+  for (int i = 0; i < output.height; i++) {
+    for (int j = 0; j < output.width; j++) {
+      printf("%f ", output.data[i * output.width + j]);
+    }
+    printf("\n");
+  }
+}
+
 int main() {
 
   float inputArray[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -18,13 +28,10 @@ int main() {
       break;
     }
     metalConv->conv2d(&input, &kernel, output, 1, 1, 1, 1);
-    printf("output: %d x %d\n", output->width, output->height);
-    for (int i = 0; i < output->height; i++) {
-      for (int j = 0; j < output->width; j++) {
-        printf("%f ", output->data[i * output->width + j]);
-      }
-      printf("\n");
-    }
+    printOutput(*output);
+
+    metalConv->maxPool(&input, 2, 2, output);
+    printOutput(*output);
 
     std::cin.get(c);
   }
