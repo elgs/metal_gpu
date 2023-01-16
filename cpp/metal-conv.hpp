@@ -42,8 +42,11 @@ const char* kernelSrc = R"(
     const        uint   index   [[ thread_position_in_grid ]]
   ) {
     float sum = 0.0f;
-    const int x = index % inWidth;
-    const int y = index / inWidth;
+    
+    // x, y in output grid
+    const int x = index % outWidth;
+    const int y = index / outWidth;
+
     for (int ky = 0; ky < kerHeight; ++ky) {
       for (int kx = 0; kx < kerWidth; ++kx) {
         const int ix = x * strideX + kx - paddingX;
@@ -53,7 +56,7 @@ const char* kernelSrc = R"(
         }
       }
     }
-    out[y * outWidth + x] = sum;
+    out[index] = sum;
   }
 )";
 
@@ -151,7 +154,7 @@ void MetalConv::conv2d(
   pComputeCommandEncoder->setBytes(&paddingX, sizeof(paddingX), 11);
   pComputeCommandEncoder->setBytes(&paddingY, sizeof(paddingY), 12);
 
-  MTL::Size gridSize = MTL::Size(input->width * input->height, 1, 1);
+  MTL::Size gridSize = MTL::Size(output->width * output->height, 1, 1);
   // on M1 Pro Max
   NS::UInteger maxTotalThreadsPerThreadgroup = pComputePipelineState->maxTotalThreadsPerThreadgroup(); // 1024
   // NS::UInteger threadExecutionWidth = pComputePipelineState->threadExecutionWidth(); // 32

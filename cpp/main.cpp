@@ -3,11 +3,11 @@
 
 int main() {
 
-  float inputArray[] = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
-  float kernelArray[] = {5.0f, 4.0f};
+  float inputArray[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+  float kernelArray[] = {1, 2, 3, 4};
 
-  const Mat2d<float> input = {inputArray, 5, 1};
-  const Mat2d<float> kernel = {kernelArray, 2, 1};
+  const Mat2d<float> input = {inputArray, 3, 3};
+  const Mat2d<float> kernel = {kernelArray, 2, 2};
   Mat2d<float>* output = new Mat2d<float>();
 
   MetalConv* metalConv = new MetalConv();
