@@ -49,14 +49,26 @@ public:
       const unsigned int paddingX = 0,
       const unsigned int paddingY = 0);
 
+  void avgPool(
+      const Mat2d<float>* input,
+      const unsigned int kernelWidth,
+      const unsigned int kernelHeight,
+      Mat2d<float>* output,
+      const unsigned int strideX = 1,
+      const unsigned int strideY = 1,
+      const unsigned int paddingX = 0,
+      const unsigned int paddingY = 0);
+
 private:
   NS::AutoreleasePool* pPool;
   MTL::Device* pDevice;
   MTL::Library* pLibrary;
   MTL::Function* pFunctionConv2d;
   MTL::Function* pFunctionMaxPool;
+  MTL::Function* pFunctionAvgPool;
   MTL::ComputePipelineState* pComputePipelineStateConv2d;
   MTL::ComputePipelineState* pComputePipelineStateMaxPool;
+  MTL::ComputePipelineState* pComputePipelineStateAvgPool;
   MTL::CommandQueue* pCommandQueue;
 };
 
@@ -64,8 +76,10 @@ MetalConv::~MetalConv() {
   pCommandQueue->release();
   pComputePipelineStateConv2d->release();
   pComputePipelineStateMaxPool->release();
+  pComputePipelineStateAvgPool->release();
   pFunctionConv2d->release();
   pFunctionMaxPool->release();
+  pFunctionAvgPool->release();
   pLibrary->release();
   pDevice->release();
   pPool->release();
@@ -88,6 +102,10 @@ MetalConv::MetalConv() {
   pFunctionMaxPool = pLibrary->newFunction(NS::String::string("maxPool", NS::UTF8StringEncoding));
   pComputePipelineStateMaxPool = pDevice->newComputePipelineState(pFunctionMaxPool, &pError);
   handleErrors(pComputePipelineStateMaxPool, pError);
+
+  pFunctionAvgPool = pLibrary->newFunction(NS::String::string("avgPool", NS::UTF8StringEncoding));
+  pComputePipelineStateAvgPool = pDevice->newComputePipelineState(pFunctionAvgPool, &pError);
+  handleErrors(pComputePipelineStateAvgPool, pError);
 
   pCommandQueue = pDevice->newCommandQueue();
 }
@@ -190,6 +208,62 @@ void MetalConv::maxPool(
   // on M1 Pro Max
   NS::UInteger maxTotalThreadsPerThreadgroup = pComputePipelineStateMaxPool->maxTotalThreadsPerThreadgroup(); // 1024
   // NS::UInteger threadExecutionWidth = pComputePipelineStateMaxPool->threadExecutionWidth(); // 32
+  MTL::Size threadgroupSize(maxTotalThreadsPerThreadgroup, 1, 1);
+  pComputeCommandEncoder->dispatchThreads(gridSize, threadgroupSize);
+  pComputeCommandEncoder->endEncoding();
+
+  auto callback = [output, outputBuffer](MTL::CommandBuffer* pCommandBuffer) {
+    output->data = (float*)outputBuffer->contents();
+  };
+
+  // pCommandBuffer->addCompletedHandler(callback);
+
+  pCommandBuffer->commit();
+  pCommandBuffer->waitUntilCompleted();
+  callback(pCommandBuffer);
+}
+
+void MetalConv::avgPool(
+    const Mat2d<float>* input,
+    const unsigned int kernelWidth,
+    const unsigned int kernelHeight,
+    Mat2d<float>* output,
+    const unsigned int strideX,
+    const unsigned int strideY,
+    const unsigned int paddingX,
+    const unsigned int paddingY) {
+  auto start = std::chrono::steady_clock::now();
+
+  output->width = (input->width - kernelWidth + 2 * paddingX) / strideX + 1;
+  output->height = (input->height - kernelHeight + 2 * paddingY) / strideY + 1;
+
+  MTL::CommandBuffer* pCommandBuffer = pCommandQueue->commandBuffer();
+  MTL::ComputeCommandEncoder* pComputeCommandEncoder = pCommandBuffer->computeCommandEncoder();
+  pComputeCommandEncoder->setComputePipelineState(pComputePipelineStateAvgPool);
+
+  MTL::Buffer* inputBuffer = pDevice->newBuffer(input->data, sizeof(float) * input->width * input->height, MTL::ResourceStorageModeShared);
+  MTL::Buffer* outputBuffer = pDevice->newBuffer(sizeof(float) * output->width * output->height, MTL::ResourceStorageModeShared);
+  pComputeCommandEncoder->setBuffer(inputBuffer, 0, 0);
+  pComputeCommandEncoder->setBytes(&input->width, sizeof(int), 1);
+  pComputeCommandEncoder->setBytes(&input->height, sizeof(int), 2);
+
+  pComputeCommandEncoder->setBytes(&kernelWidth, sizeof(int), 3);
+  pComputeCommandEncoder->setBytes(&kernelHeight, sizeof(int), 4);
+
+  pComputeCommandEncoder->setBuffer(outputBuffer, 0, 5);
+  pComputeCommandEncoder->setBytes(&output->width, sizeof(int), 6);
+  pComputeCommandEncoder->setBytes(&output->height, sizeof(int), 7);
+
+  pComputeCommandEncoder->setBytes(&strideX, sizeof(int), 8);
+  pComputeCommandEncoder->setBytes(&strideY, sizeof(int), 9);
+
+  pComputeCommandEncoder->setBytes(&paddingX, sizeof(int), 10);
+  pComputeCommandEncoder->setBytes(&paddingY, sizeof(int), 11);
+
+  MTL::Size gridSize = MTL::Size(output->width * output->height, 1, 1);
+  // on M1 Pro Max
+  NS::UInteger maxTotalThreadsPerThreadgroup = pComputePipelineStateAvgPool->maxTotalThreadsPerThreadgroup(); // 1024
+  // NS::UInteger threadExecutionWidth = pComputePipelineStateAvgPool->threadExecutionWidth(); // 32
   MTL::Size threadgroupSize(maxTotalThreadsPerThreadgroup, 1, 1);
   pComputeCommandEncoder->dispatchThreads(gridSize, threadgroupSize);
   pComputeCommandEncoder->endEncoding();

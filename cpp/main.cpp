@@ -33,6 +33,9 @@ int main() {
     metalConv->maxPool(&input, 2, 2, output);
     printOutput(*output);
 
+    metalConv->avgPool(&input, 2, 2, output);
+    printOutput(*output);
+
     std::cin.get(c);
   }
 
