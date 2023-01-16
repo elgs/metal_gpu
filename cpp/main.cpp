@@ -13,10 +13,10 @@ void printOutput(const Mat2d<float>& output) {
 
 int main() {
 
-  float inputArray[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+  float inputArray[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
   float kernelArray[] = {1, 2, 3, 4};
 
-  const Mat2d<float> input = {inputArray, 3, 3};
+  const Mat2d<float> input = {inputArray, 4, 4};
   const Mat2d<float> kernel = {kernelArray, 2, 2};
   Mat2d<float>* output = new Mat2d<float>();
 
