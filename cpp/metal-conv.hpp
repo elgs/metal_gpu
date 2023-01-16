@@ -137,22 +137,22 @@ void MetalConv::conv2d(
   MTL::Buffer* kernelBuffer = pDevice->newBuffer(kernel->data, sizeof(float) * kernel->width * kernel->height, MTL::ResourceStorageModeShared);
   MTL::Buffer* outputBuffer = pDevice->newBuffer(sizeof(float) * output->width * output->height, MTL::ResourceStorageModeShared);
   pComputeCommandEncoder->setBuffer(inputBuffer, 0, 0);
-  pComputeCommandEncoder->setBytes(&input->width, sizeof(input->width), 1);
-  pComputeCommandEncoder->setBytes(&input->height, sizeof(input->height), 2);
+  pComputeCommandEncoder->setBytes(&input->width, sizeof(int), 1);
+  pComputeCommandEncoder->setBytes(&input->height, sizeof(int), 2);
 
   pComputeCommandEncoder->setBuffer(kernelBuffer, 0, 3);
-  pComputeCommandEncoder->setBytes(&kernel->width, sizeof(kernel->width), 4);
-  pComputeCommandEncoder->setBytes(&kernel->height, sizeof(kernel->height), 5);
+  pComputeCommandEncoder->setBytes(&kernel->width, sizeof(int), 4);
+  pComputeCommandEncoder->setBytes(&kernel->height, sizeof(int), 5);
 
   pComputeCommandEncoder->setBuffer(outputBuffer, 0, 6);
-  pComputeCommandEncoder->setBytes(&output->width, sizeof(output->width), 7);
-  pComputeCommandEncoder->setBytes(&output->height, sizeof(output->height), 8);
+  pComputeCommandEncoder->setBytes(&output->width, sizeof(int), 7);
+  pComputeCommandEncoder->setBytes(&output->height, sizeof(int), 8);
 
-  pComputeCommandEncoder->setBytes(&strideX, sizeof(strideX), 9);
-  pComputeCommandEncoder->setBytes(&strideY, sizeof(strideY), 10);
+  pComputeCommandEncoder->setBytes(&strideX, sizeof(int), 9);
+  pComputeCommandEncoder->setBytes(&strideY, sizeof(int), 10);
 
-  pComputeCommandEncoder->setBytes(&paddingX, sizeof(paddingX), 11);
-  pComputeCommandEncoder->setBytes(&paddingY, sizeof(paddingY), 12);
+  pComputeCommandEncoder->setBytes(&paddingX, sizeof(int), 11);
+  pComputeCommandEncoder->setBytes(&paddingY, sizeof(int), 12);
 
   MTL::Size gridSize = MTL::Size(output->width * output->height, 1, 1);
   // on M1 Pro Max
