@@ -29,7 +29,7 @@ let startTime = CFAbsoluteTimeGetCurrent()
 let device = MTLCreateSystemDefaultDevice()
 
 // A library for getting our metal functions
-// let gpuFunctionLibrary = try! device?.makeLibrary(URL: URL(fileURLWithPath: "../metal/compute.metallib"))
+// let gpuFunctionLibrary = try! device?.makeLibrary(URL: URL(fileURLWithPath: "./metal/compute.metallib"))
 let gpuFunctionLibrary = try! device?.makeLibrary(source: kernelSrc, options: nil)
 
 // Grab our gpu function
