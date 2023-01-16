@@ -3,8 +3,8 @@
 
 void printOutput(const Mat2d<float>& output) {
   printf("output: %d x %d\n", output.width, output.height);
-  for (int i = 0; i < output.height; i++) {
-    for (int j = 0; j < output.width; j++) {
+  for (int i = 0; i < output.height; ++i) {
+    for (int j = 0; j < output.width; ++j) {
       printf("%f ", output.data[i * output.width + j]);
     }
     printf("\n");
