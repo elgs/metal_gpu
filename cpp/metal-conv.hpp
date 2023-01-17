@@ -444,15 +444,15 @@ void MetalConv::conv2dCPU(
   }
 }
 
-void maxPoolCPU(
+void MetalConv::maxPoolCPU(
     const Mat2d<float>* input,
     const unsigned int kernelWidth,
     const unsigned int kernelHeight,
     Mat2d<float>* output,
-    const unsigned int strideX = 1,
-    const unsigned int strideY = 1,
-    const unsigned int paddingX = 0,
-    const unsigned int paddingY = 0) {
+    const unsigned int strideX,
+    const unsigned int strideY,
+    const unsigned int paddingX,
+    const unsigned int paddingY) {
   if (input->width < kernelWidth || input->height < kernelHeight) {
     std::cout << "Input size must be greater than kernel size" << std::endl;
     return;
@@ -461,18 +461,38 @@ void maxPoolCPU(
   if (strideX == 0 || strideY == 0) {
     std::cout << "Stride must be greater than 0" << std::endl;
     return;
+  }
+
+  output->width = (input->width - kernelWidth + 2 * paddingX) / strideX + 1;
+  output->height = (input->height - kernelHeight + 2 * paddingY) / strideY + 1;
+  output->data = new float[output->width * output->height];
+
+  for (unsigned int oy = 0; oy < output->height; ++oy) {
+    for (unsigned int ox = 0; ox < output->width; ++ox) {
+      float max = -FLT_MAX;
+      for (unsigned int ky = 0; ky < kernelHeight; ++ky) {
+        for (unsigned int kx = 0; kx < kernelWidth; ++kx) {
+          unsigned int ix = ox * strideX + kx - paddingX;
+          unsigned int iy = oy * strideY + ky - paddingY;
+          if (ix >= 0 && iy >= 0 && ix < input->width && iy < input->height) {
+            max = std::max(max, input->data[iy * input->width + ix]);
+          }
+        }
+      }
+      output->data[oy * output->width + ox] = max;
+    }
   }
 }
 
-void avgPoolCPU(
+void MetalConv::avgPoolCPU(
     const Mat2d<float>* input,
     const unsigned int kernelWidth,
     const unsigned int kernelHeight,
     Mat2d<float>* output,
-    const unsigned int strideX = 1,
-    const unsigned int strideY = 1,
-    const unsigned int paddingX = 0,
-    const unsigned int paddingY = 0) {
+    const unsigned int strideX,
+    const unsigned int strideY,
+    const unsigned int paddingX,
+    const unsigned int paddingY) {
   if (input->width < kernelWidth || input->height < kernelHeight) {
     std::cout << "Input size must be greater than kernel size" << std::endl;
     return;
@@ -481,6 +501,26 @@ void avgPoolCPU(
   if (strideX == 0 || strideY == 0) {
     std::cout << "Stride must be greater than 0" << std::endl;
     return;
+  }
+
+  output->width = (input->width - kernelWidth + 2 * paddingX) / strideX + 1;
+  output->height = (input->height - kernelHeight + 2 * paddingY) / strideY + 1;
+  output->data = new float[output->width * output->height];
+
+  for (unsigned int oy = 0; oy < output->height; ++oy) {
+    for (unsigned int ox = 0; ox < output->width; ++ox) {
+      float sum = 0.0f;
+      for (unsigned int ky = 0; ky < kernelHeight; ++ky) {
+        for (unsigned int kx = 0; kx < kernelWidth; ++kx) {
+          unsigned int ix = ox * strideX + kx - paddingX;
+          unsigned int iy = oy * strideY + ky - paddingY;
+          if (ix >= 0 && iy >= 0 && ix < input->width && iy < input->height) {
+            sum += input->data[iy * input->width + ix];
+          }
+        }
+      }
+      output->data[oy * output->width + ox] = sum / (kernelWidth * kernelHeight);
+    }
   }
 }
 

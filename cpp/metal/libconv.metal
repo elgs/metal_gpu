@@ -1,5 +1,3 @@
-#define NEGATIVE_INFINITY (-1.0f / 0.0f)
-
 #include <metal_stdlib>
 using namespace metal;
 
@@ -61,7 +59,7 @@ using namespace metal;
 
   const        uint     index      [[ thread_position_in_grid ]]
 ) {
-  float max = NEGATIVE_INFINITY;
+  float max = -FLT_MAX;
   
   const uint ox = index % outWidth;
   const uint oy = index / outWidth;
