@@ -63,20 +63,19 @@ void printOutput(const Mat2d<float>& output) {
 int main() {
   srand(time(NULL));
 
-  // float inputArray[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-  // const Mat2d<float> input = {inputArray, 4, 4};
-  Mat2d<float> input;
-  randomMat2d(&input, 2'000, 2'000);
+  float inputArray[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+  const Mat2d<float> input = {inputArray, 4, 4};
+  // Mat2d<float> input;
+  // randomMat2d(&input, 2'000, 2'000);
   printf("Input: %d x %d\n", input.width, input.height);
 
-  Mat2d<float> kernel;
-  randomMat2d(&kernel, 64, 64);
+  float kernelArray[] = {1, 2, 3, 4};
+  const Mat2d<float> kernel = {kernelArray, 2, 2};
+  // Mat2d<float> kernel;
+  // randomMat2d(&kernel, 64, 64);
   printf("Conv2d kernel: %d x %d\n", kernel.width, kernel.height);
 
   Mat2d<float> output;
-
-  // float kernelArray[] = {1, 2, 3, 4};
-  // const Mat2d<float> kernel = {kernelArray, 2, 2};
 
   // Mat2d<float> input2;
   // randomMat2d(&input2, 1'000'000'000, 1);
@@ -94,34 +93,37 @@ int main() {
     Benchmark benchConv2dGPU("Conv2d GPU");
     metalConv->conv2d(&input, &kernel, &output);
     benchConv2dGPU.stop();
+    printOutput(output);
 
     Benchmark benchConv2dCPU("Conv2d CPU");
     metalConv->conv2dCPU(&input, &kernel, &output);
-    delete[] output.data;
     benchConv2dCPU.stop();
-
-    // printOutput(output);
+    printOutput(output);
+    delete[] output.data;
 
     printf("MaxPool kernel: %d x %d\n", POOL_SIZE, POOL_SIZE);
     Benchmark benchMaxPoolGPU("MaxPool GPU");
     metalConv->maxPool(&input, POOL_SIZE, POOL_SIZE, &output);
     benchMaxPoolGPU.stop();
+    printOutput(output);
 
     Benchmark benchMaxPoolCPU("MaxPool CPU");
     metalConv->maxPoolCPU(&input, POOL_SIZE, POOL_SIZE, &output);
-    delete[] output.data;
     benchMaxPoolCPU.stop();
-    // printOutput(output);
+    printOutput(output);
+    delete[] output.data;
 
     printf("AvgPool kernel: %d x %d\n", POOL_SIZE, POOL_SIZE);
     Benchmark benchAvgPoolGPU("AvgPool GPU");
     metalConv->avgPool(&input, POOL_SIZE, POOL_SIZE, &output);
     benchAvgPoolGPU.stop();
+    printOutput(output);
 
     Benchmark benchAvgPoolCPU("AvgPool CPU");
     metalConv->avgPoolCPU(&input, POOL_SIZE, POOL_SIZE, &output);
-    delete[] output.data;
     benchAvgPoolCPU.stop();
+    printOutput(output);
+    delete[] output.data;
 
     // printOutput(output);
 
