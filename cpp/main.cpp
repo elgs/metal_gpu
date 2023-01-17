@@ -1,6 +1,5 @@
 #include "metal-conv.hpp"
 #include <iostream>
-#include <thread>
 
 struct Benchmark {
   bool stopped = false;
@@ -74,6 +73,8 @@ int main() {
   randomMat2d(&kernel, 64, 64);
   printf("Conv2d kernel: %d x %d\n", kernel.width, kernel.height);
 
+  Mat2d<float> output;
+
   // float kernelArray[] = {1, 2, 3, 4};
   // const Mat2d<float> kernel = {kernelArray, 2, 2};
 
@@ -88,87 +89,38 @@ int main() {
       break;
     }
 
-    int NUM_THREADS = 1;
-    std::thread threads[NUM_THREADS];
+    const int POOL_SIZE = 2;
 
-    Benchmark benchConv2dGPU("conv2d GPU");
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      threads[i] = std::thread([&]() {
-        Mat2d<float> output;
-        metalConv->conv2d(&input, &kernel, &output);
-      });
-    }
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      threads[i].join();
-    }
+    Benchmark benchConv2dGPU("Conv2d GPU");
+    metalConv->conv2d(&input, &kernel, &output);
     benchConv2dGPU.stop();
 
-    Benchmark benchConv2dCPU("conv2d CPU");
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      threads[i] = std::thread([&]() {
-        Mat2d<float> output;
-        metalConv->conv2dCPU(&input, &kernel, &output);
-        delete[] output.data;
-      });
-    }
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      threads[i].join();
-    }
+    Benchmark benchConv2dCPU("Conv2d CPU");
+    metalConv->conv2dCPU(&input, &kernel, &output);
+    delete[] output.data;
     benchConv2dCPU.stop();
 
     // printOutput(output);
 
-    printf("MaxPool kernel: %d x %d\n", 4, 4);
-    Benchmark benchMaxPoolGPU("maxPool GPU");
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      threads[i] = std::thread([&]() {
-        Mat2d<float> output;
-        metalConv->maxPool(&input, 4, 4, &output);
-      });
-    }
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      threads[i].join();
-    }
+    printf("MaxPool kernel: %d x %d\n", POOL_SIZE, POOL_SIZE);
+    Benchmark benchMaxPoolGPU("MaxPool GPU");
+    metalConv->maxPool(&input, POOL_SIZE, POOL_SIZE, &output);
     benchMaxPoolGPU.stop();
 
-    Benchmark benchMaxPoolCPU("maxPool CPU");
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      threads[i] = std::thread([&]() {
-        Mat2d<float> output;
-        metalConv->maxPoolCPU(&input, 4, 4, &output);
-        delete[] output.data;
-      });
-    }
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      threads[i].join();
-    }
+    Benchmark benchMaxPoolCPU("MaxPool CPU");
+    metalConv->maxPoolCPU(&input, POOL_SIZE, POOL_SIZE, &output);
+    delete[] output.data;
     benchMaxPoolCPU.stop();
     // printOutput(output);
 
-    printf("AvgPool kernel: %d x %d\n", 4, 4);
-    Benchmark benchAvgPoolGPU("avgPool GPU");
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      threads[i] = std::thread([&]() {
-        Mat2d<float> output;
-        metalConv->avgPool(&input, 4, 4, &output);
-      });
-    }
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      threads[i].join();
-    }
+    printf("AvgPool kernel: %d x %d\n", POOL_SIZE, POOL_SIZE);
+    Benchmark benchAvgPoolGPU("AvgPool GPU");
+    metalConv->avgPool(&input, POOL_SIZE, POOL_SIZE, &output);
     benchAvgPoolGPU.stop();
 
-    Benchmark benchAvgPoolCPU("avgPool CPU");
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      threads[i] = std::thread([&]() {
-        Mat2d<float> output;
-        metalConv->avgPoolCPU(&input, 4, 4, &output);
-        delete[] output.data;
-      });
-    }
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      threads[i].join();
-    }
+    Benchmark benchAvgPoolCPU("AvgPool CPU");
+    metalConv->avgPoolCPU(&input, POOL_SIZE, POOL_SIZE, &output);
+    delete[] output.data;
     benchAvgPoolCPU.stop();
 
     // printOutput(output);
