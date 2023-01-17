@@ -67,10 +67,13 @@ int main() {
   // float inputArray[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
   // const Mat2d<float> input = {inputArray, 4, 4};
   Mat2d<float> input;
-  randomMat2d(&input, 20'000, 20'000);
+  randomMat2d(&input, 5'000, 5'000);
 
-  float kernelArray[] = {1, 2, 3, 4};
-  const Mat2d<float> kernel = {kernelArray, 2, 2};
+  Mat2d<float> kernel;
+  randomMat2d(&kernel, 64, 64);
+
+  // float kernelArray[] = {1, 2, 3, 4};
+  // const Mat2d<float> kernel = {kernelArray, 2, 2};
 
   // Mat2d<float> input2;
   // randomMat2d(&input2, 1'000'000'000, 1);
@@ -83,65 +86,73 @@ int main() {
       break;
     }
 
-    int NUM_THREADS = 8;
-
+    int NUM_THREADS = 1;
     std::thread threads[NUM_THREADS];
-    Benchmark benchConv2d("conv2d");
-    printf("conv2d threads started: ");
+
+    Benchmark benchConv2d("conv2d GPU");
     for (int i = 0; i < NUM_THREADS; ++i) {
-      printf("%d ", i);
       threads[i] = std::thread([&]() {
         Mat2d<float> output;
-        metalConv->conv2d(&input, &kernel, &output, 1, 1, 1, 1);
+        metalConv->conv2d(&input, &kernel, &output);
       });
     }
-    printf("\n");
-    printf("conv2d threads joined: ");
     for (int i = 0; i < NUM_THREADS; ++i) {
-      printf("%d ", i);
       threads[i].join();
     }
-    printf("\n");
     benchConv2d.stop();
 
-    // printOutput(output);
-
-    Benchmark benchMaxPool("maxPool");
-    printf("maxpool threads started: ");
+    Benchmark benchConv2dCPU("conv2d CPU");
     for (int i = 0; i < NUM_THREADS; ++i) {
-      printf("%d ", i);
       threads[i] = std::thread([&]() {
         Mat2d<float> output;
-        metalConv->maxPool(&input, 2, 2, &output);
+        metalConv->conv2dCPU(&input, &kernel, &output);
+        delete[] output.data;
       });
     }
-    printf("\n");
-    printf("maxpool threads joined: ");
     for (int i = 0; i < NUM_THREADS; ++i) {
-      printf("%d ", i);
+      // printf("%d ", i);
       threads[i].join();
     }
-    printf("\n");
-    benchMaxPool.stop();
+    benchConv2dCPU.stop();
+
     // printOutput(output);
 
-    Benchmark benchAvgPool("avgPool");
-    printf("avgpool threads started: ");
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      printf("%d ", i);
-      threads[i] = std::thread([&]() {
-        Mat2d<float> output;
-        metalConv->avgPool(&input, 2, 2, &output);
-      });
-    }
-    printf("\n");
-    printf("avgpool threads joined: ");
-    for (int i = 0; i < NUM_THREADS; ++i) {
-      printf("%d ", i);
-      threads[i].join();
-    }
-    printf("\n");
-    benchAvgPool.stop();
+    // Benchmark benchMaxPool("maxPool");
+    // printf("maxpool threads started: ");
+    // for (int i = 0; i < NUM_THREADS; ++i) {
+    //   printf("%d ", i);
+    //   threads[i] = std::thread([&]() {
+    //     Mat2d<float> output;
+    //     metalConv->maxPool(&input, 2, 2, &output);
+    //   });
+    // }
+    // printf("\n");
+    // printf("maxpool threads joined: ");
+    // for (int i = 0; i < NUM_THREADS; ++i) {
+    //   printf("%d ", i);
+    //   threads[i].join();
+    // }
+    // printf("\n");
+    // benchMaxPool.stop();
+    // // printOutput(output);
+
+    // Benchmark benchAvgPool("avgPool");
+    // printf("avgpool threads started: ");
+    // for (int i = 0; i < NUM_THREADS; ++i) {
+    //   printf("%d ", i);
+    //   threads[i] = std::thread([&]() {
+    //     Mat2d<float> output;
+    //     metalConv->avgPool(&input, 2, 2, &output);
+    //   });
+    // }
+    // printf("\n");
+    // printf("avgpool threads joined: ");
+    // for (int i = 0; i < NUM_THREADS; ++i) {
+    //   printf("%d ", i);
+    //   threads[i].join();
+    // }
+    // printf("\n");
+    // benchAvgPool.stop();
 
     // printOutput(output);
 

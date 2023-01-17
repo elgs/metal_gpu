@@ -9,6 +9,8 @@
 #include <Metal/Metal.hpp>
 #include <QuartzCore/QuartzCore.hpp>
 
+#include <iostream>
+
 void handleErrors(void* data, NS::Error* pError) {
   if (!data && pError) {
     printf("%s", pError->localizedDescription()->utf8String());
@@ -161,6 +163,17 @@ void MetalConv::conv2d(
     const unsigned int strideY,
     const unsigned int paddingX,
     const unsigned int paddingY) {
+
+  if (input->width < kernel->width || input->height < kernel->height) {
+    std::cout << "Input size must be greater than kernel size" << std::endl;
+    return;
+  }
+
+  if (strideX == 0 || strideY == 0) {
+    std::cout << "Stride must be greater than 0" << std::endl;
+    return;
+  }
+
   output->width = (input->width - kernel->width + 2 * paddingX) / strideX + 1;
   output->height = (input->height - kernel->height + 2 * paddingY) / strideY + 1;
 
@@ -221,6 +234,17 @@ void MetalConv::maxPool(
     const unsigned int strideY,
     const unsigned int paddingX,
     const unsigned int paddingY) {
+
+  if (input->width < kernelWidth || input->height < kernelHeight) {
+    std::cout << "Input size must be greater than kernel size" << std::endl;
+    return;
+  }
+
+  if (strideX == 0 || strideY == 0) {
+    std::cout << "Stride must be greater than 0" << std::endl;
+    return;
+  }
+
   output->width = (input->width - kernelWidth + 2 * paddingX) / strideX + 1;
   output->height = (input->height - kernelHeight + 2 * paddingY) / strideY + 1;
 
@@ -278,6 +302,17 @@ void MetalConv::avgPool(
     const unsigned int strideY,
     const unsigned int paddingX,
     const unsigned int paddingY) {
+
+  if (input->width < kernelWidth || input->height < kernelHeight) {
+    std::cout << "Input size must be greater than kernel size" << std::endl;
+    return;
+  }
+
+  if (strideX == 0 || strideY == 0) {
+    std::cout << "Stride must be greater than 0" << std::endl;
+    return;
+  }
+
   output->width = (input->width - kernelWidth + 2 * paddingX) / strideX + 1;
   output->height = (input->height - kernelHeight + 2 * paddingY) / strideY + 1;
 
@@ -329,6 +364,12 @@ void MetalConv::avgPool(
 double MetalConv::reduceSum(
     const Mat2d<float>* input,
     const unsigned int width) {
+
+  if (input->width < width) {
+    std::cout << "Input size must be greater than width" << std::endl;
+    return 0;
+  }
+
   Mat2d<float> output;
   output.width = input->width % width == 0 ? input->width / width : input->width / width + 1;
   output.height = 1;
@@ -371,6 +412,36 @@ void MetalConv::conv2dCPU(
     const unsigned int strideY,
     const unsigned int paddingX,
     const unsigned int paddingY) {
+
+  if (input->width < kernel->width || input->height < kernel->height) {
+    std::cout << "Input size must be greater than kernel size" << std::endl;
+    return;
+  }
+
+  if (strideX == 0 || strideY == 0) {
+    std::cout << "Stride must be greater than 0" << std::endl;
+    return;
+  }
+
+  output->width = (input->width - kernel->width + 2 * paddingX) / strideX + 1;
+  output->height = (input->height - kernel->height + 2 * paddingY) / strideY + 1;
+  output->data = new float[output->width * output->height];
+
+  for (unsigned int oy = 0; oy < output->height; ++oy) {
+    for (unsigned int ox = 0; ox < output->width; ++ox) {
+      float sum = 0.0f;
+      for (unsigned int ky = 0; ky < kernel->height; ++ky) {
+        for (unsigned int kx = 0; kx < kernel->width; ++kx) {
+          unsigned int ix = ox * strideX + kx - paddingX;
+          unsigned int iy = oy * strideY + ky - paddingY;
+          if (ix >= 0 && iy >= 0 && ix < input->width && iy < input->height) {
+            sum += input->data[iy * input->width + ix] * kernel->data[ky * kernel->width + kx];
+          }
+        }
+      }
+      output->data[oy * output->width + ox] = sum;
+    }
+  }
 }
 
 void maxPoolCPU(
@@ -382,6 +453,15 @@ void maxPoolCPU(
     const unsigned int strideY = 1,
     const unsigned int paddingX = 0,
     const unsigned int paddingY = 0) {
+  if (input->width < kernelWidth || input->height < kernelHeight) {
+    std::cout << "Input size must be greater than kernel size" << std::endl;
+    return;
+  }
+
+  if (strideX == 0 || strideY == 0) {
+    std::cout << "Stride must be greater than 0" << std::endl;
+    return;
+  }
 }
 
 void avgPoolCPU(
@@ -393,6 +473,15 @@ void avgPoolCPU(
     const unsigned int strideY = 1,
     const unsigned int paddingX = 0,
     const unsigned int paddingY = 0) {
+  if (input->width < kernelWidth || input->height < kernelHeight) {
+    std::cout << "Input size must be greater than kernel size" << std::endl;
+    return;
+  }
+
+  if (strideX == 0 || strideY == 0) {
+    std::cout << "Stride must be greater than 0" << std::endl;
+    return;
+  }
 }
 
 double MetalConv::reduceSumCPU(const Mat2d<float>* input) {
