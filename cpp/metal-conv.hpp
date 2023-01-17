@@ -143,16 +143,16 @@ void MetalConv::conv2d(
   MTL::Buffer* kernelBuffer = pDevice->newBuffer(kernel->data, sizeof(float) * kernel->width * kernel->height, MTL::ResourceStorageModeShared);
   MTL::Buffer* outputBuffer = pDevice->newBuffer(sizeof(float) * output->width * output->height, MTL::ResourceStorageModeShared);
   pComputeCommandEncoder->setBuffer(inputBuffer, 0, 0);
-  pComputeCommandEncoder->setBytes(&input->width, sizeof(int), 1);
-  pComputeCommandEncoder->setBytes(&input->height, sizeof(int), 2);
+  pComputeCommandEncoder->setBytes(&input->width, sizeof(unsigned int), 1);
+  pComputeCommandEncoder->setBytes(&input->height, sizeof(unsigned int), 2);
 
   pComputeCommandEncoder->setBuffer(kernelBuffer, 0, 3);
   pComputeCommandEncoder->setBytes(&kernel->width, sizeof(int), 4);
   pComputeCommandEncoder->setBytes(&kernel->height, sizeof(int), 5);
 
   pComputeCommandEncoder->setBuffer(outputBuffer, 0, 6);
-  pComputeCommandEncoder->setBytes(&output->width, sizeof(int), 7);
-  pComputeCommandEncoder->setBytes(&output->height, sizeof(int), 8);
+  pComputeCommandEncoder->setBytes(&output->width, sizeof(unsigned int), 7);
+  pComputeCommandEncoder->setBytes(&output->height, sizeof(unsigned int), 8);
 
   pComputeCommandEncoder->setBytes(&strideX, sizeof(int), 9);
   pComputeCommandEncoder->setBytes(&strideY, sizeof(int), 10);
@@ -198,15 +198,15 @@ void MetalConv::maxPool(
   MTL::Buffer* inputBuffer = pDevice->newBuffer(input->data, sizeof(float) * input->width * input->height, MTL::ResourceStorageModeShared);
   MTL::Buffer* outputBuffer = pDevice->newBuffer(sizeof(float) * output->width * output->height, MTL::ResourceStorageModeShared);
   pComputeCommandEncoder->setBuffer(inputBuffer, 0, 0);
-  pComputeCommandEncoder->setBytes(&input->width, sizeof(int), 1);
-  pComputeCommandEncoder->setBytes(&input->height, sizeof(int), 2);
+  pComputeCommandEncoder->setBytes(&input->width, sizeof(unsigned int), 1);
+  pComputeCommandEncoder->setBytes(&input->height, sizeof(unsigned int), 2);
 
   pComputeCommandEncoder->setBytes(&kernelWidth, sizeof(int), 3);
   pComputeCommandEncoder->setBytes(&kernelHeight, sizeof(int), 4);
 
   pComputeCommandEncoder->setBuffer(outputBuffer, 0, 5);
-  pComputeCommandEncoder->setBytes(&output->width, sizeof(int), 6);
-  pComputeCommandEncoder->setBytes(&output->height, sizeof(int), 7);
+  pComputeCommandEncoder->setBytes(&output->width, sizeof(unsigned int), 6);
+  pComputeCommandEncoder->setBytes(&output->height, sizeof(unsigned int), 7);
 
   pComputeCommandEncoder->setBytes(&strideX, sizeof(int), 8);
   pComputeCommandEncoder->setBytes(&strideY, sizeof(int), 9);
@@ -252,15 +252,15 @@ void MetalConv::avgPool(
   MTL::Buffer* inputBuffer = pDevice->newBuffer(input->data, sizeof(float) * input->width * input->height, MTL::ResourceStorageModeShared);
   MTL::Buffer* outputBuffer = pDevice->newBuffer(sizeof(float) * output->width * output->height, MTL::ResourceStorageModeShared);
   pComputeCommandEncoder->setBuffer(inputBuffer, 0, 0);
-  pComputeCommandEncoder->setBytes(&input->width, sizeof(int), 1);
-  pComputeCommandEncoder->setBytes(&input->height, sizeof(int), 2);
+  pComputeCommandEncoder->setBytes(&input->width, sizeof(unsigned int), 1);
+  pComputeCommandEncoder->setBytes(&input->height, sizeof(unsigned int), 2);
 
   pComputeCommandEncoder->setBytes(&kernelWidth, sizeof(int), 3);
   pComputeCommandEncoder->setBytes(&kernelHeight, sizeof(int), 4);
 
   pComputeCommandEncoder->setBuffer(outputBuffer, 0, 5);
-  pComputeCommandEncoder->setBytes(&output->width, sizeof(int), 6);
-  pComputeCommandEncoder->setBytes(&output->height, sizeof(int), 7);
+  pComputeCommandEncoder->setBytes(&output->width, sizeof(unsigned int), 6);
+  pComputeCommandEncoder->setBytes(&output->height, sizeof(unsigned int), 7);
 
   pComputeCommandEncoder->setBytes(&strideX, sizeof(int), 8);
   pComputeCommandEncoder->setBytes(&strideY, sizeof(int), 9);
@@ -325,7 +325,7 @@ float MetalConv::reduceSum(
 }
 
 float MetalConv::reduceSumCPU(const Mat2d<float>* input) {
-  float sum = 0;
+  float sum = 0.0f;
   for (unsigned int i = 0; i < input->width; ++i) {
     sum += input->data[i];
   }
