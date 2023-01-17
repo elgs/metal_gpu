@@ -127,3 +127,11 @@ using namespace metal;
   }
   out[index] = sum;
 }
+
+[[kernel]] void relu(
+  const   device  float*  in        [[ buffer(0) ]],
+          device  float*  out       [[ buffer(1) ]],
+  const           uint    index     [[ thread_position_in_grid ]]
+) {
+  out[index] = in[index] >= 0.0f ? in[index] : 0.0f;
+}

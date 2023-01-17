@@ -125,16 +125,15 @@ int main() {
     printOutput(output);
     delete[] output.data;
 
-    // printOutput(output);
 
     // Benchmark benchReduce;
     // const float f = metalConv->reduceSum(&input2, 256);
     // benchReduce.lap();
-    // printf("reduceSum: %f\n", f);
+    // printf("reduceSum GPU: %f\n", f);
 
     // const float f2 = metalConv->reduceSumCPU(&input2);
     // benchReduce.stop();
-    // printf("reduceSumCPU: %f\n", f2);
+    // printf("reduceSum CPU: %f\n", f2);
 
     std::cin.get(c);
   }

@@ -90,6 +90,10 @@ public:
       const unsigned int paddingX = 0,
       const unsigned int paddingY = 0);
 
+  void relu(
+      const Mat2d<float>* input,
+      Mat2d<float>* output);
+
   double reduceSum(
       const Mat2d<float>* input,
       const unsigned int width);
@@ -365,11 +369,6 @@ double MetalConv::reduceSum(
     const Mat2d<float>* input,
     const unsigned int width) {
 
-  if (input->width < width) {
-    std::cout << "Input size must be greater than width" << std::endl;
-    return 0;
-  }
-
   Mat2d<float> output;
   output.width = input->width % width == 0 ? input->width / width : input->width / width + 1;
   output.height = 1;
@@ -523,6 +522,16 @@ void MetalConv::avgPoolCPU(
       output->data[oy * output->width + ox] = sum / (kernelWidth * kernelHeight);
     }
   }
+}
+
+void MetalConv::relu(
+    const Mat2d<float>* input,
+    Mat2d<float>* output) {
+  output->width = input->width;
+  output->height = input->height;
+  output->data = new float[output->width * output->height];
+
+
 }
 
 double MetalConv::reduceSumCPU(const Mat2d<float>* input) {
