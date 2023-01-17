@@ -4,25 +4,25 @@
 using namespace metal;
 
 [[kernel]] void conv2d(
-  const device float* in   [[ buffer(0) ]],
-  const device int& inWidth [[ buffer(1) ]],
-  const device int& inHeight [[ buffer(2) ]],
+  const device float* in        [[ buffer(0) ]],
+  const device int&   inWidth   [[ buffer(1) ]],
+  const device int&   inHeight  [[ buffer(2) ]],
 
-  const device float* ker  [[ buffer(3) ]],
-  const device int& kerWidth [[ buffer(4) ]],
-  const device int& kerHeight [[ buffer(5) ]],
+  const device float* ker       [[ buffer(3) ]],
+  const device int&   kerWidth  [[ buffer(4) ]],
+  const device int&   kerHeight [[ buffer(5) ]],
 
-        device float* out  [[ buffer(6) ]],
-  const device int& outWidth [[ buffer(7) ]],
-  const device int& outHeight [[ buffer(8) ]],
+        device float* out       [[ buffer(6) ]],
+  const device int&   outWidth  [[ buffer(7) ]],
+  const device int&   outHeight [[ buffer(8) ]],
 
-  const device int& strideX [[ buffer(9) ]],
-  const device int& strideY [[ buffer(10) ]],
+  const device int&   strideX   [[ buffer(9) ]],
+  const device int&   strideY   [[ buffer(10) ]],
 
-  const device int& paddingX [[ buffer(11) ]],
-  const device int& paddingY [[ buffer(12) ]],
+  const device int&   paddingX  [[ buffer(11) ]],
+  const device int&   paddingY  [[ buffer(12) ]],
 
-  const        uint   index   [[ thread_position_in_grid ]]
+  const        uint   index     [[ thread_position_in_grid ]]
 ) {
   float sum = 0.0f;
   
@@ -42,24 +42,24 @@ using namespace metal;
 }
 
 [[kernel]] void maxPool(
-  const device float* in   [[ buffer(0) ]],
-  const device int& inWidth [[ buffer(1) ]],
-  const device int& inHeight [[ buffer(2) ]],
+  const device float* in        [[ buffer(0) ]],
+  const device int&   inWidth   [[ buffer(1) ]],
+  const device int&   inHeight  [[ buffer(2) ]],
 
-  const device int& kerWidth [[ buffer(3) ]],
-  const device int& kerHeight [[ buffer(4) ]],
+  const device int&   kerWidth  [[ buffer(3) ]],
+  const device int&   kerHeight [[ buffer(4) ]],
 
-        device float* out  [[ buffer(5) ]],
-  const device int& outWidth [[ buffer(6) ]],
-  const device int& outHeight [[ buffer(7) ]],
+        device float* out       [[ buffer(5) ]],
+  const device int&   outWidth  [[ buffer(6) ]],
+  const device int&   outHeight [[ buffer(7) ]],
 
-  const device int& strideX [[ buffer(8) ]],
-  const device int& strideY [[ buffer(9) ]],
+  const device int&   strideX   [[ buffer(8) ]],
+  const device int&   strideY   [[ buffer(9) ]],
 
-  const device int& paddingX [[ buffer(10) ]],
-  const device int& paddingY [[ buffer(11) ]],
+  const device int&   paddingX  [[ buffer(10) ]],
+  const device int&   paddingY  [[ buffer(11) ]],
 
-  const        uint   index   [[ thread_position_in_grid ]]
+  const        uint   index     [[ thread_position_in_grid ]]
 ) {
   float max = NEGATIVE_INFINITY;
   
@@ -80,24 +80,24 @@ using namespace metal;
 }
 
 [[kernel]] void avgPool(
-  const device float* in   [[ buffer(0) ]],
-  const device int& inWidth [[ buffer(1) ]],
-  const device int& inHeight [[ buffer(2) ]],
+  const device float* in        [[ buffer(0) ]],
+  const device int&   inWidth   [[ buffer(1) ]],
+  const device int&   inHeight  [[ buffer(2) ]],
 
-  const device int& kerWidth [[ buffer(3) ]],
-  const device int& kerHeight [[ buffer(4) ]],
+  const device int&   kerWidth  [[ buffer(3) ]],
+  const device int&   kerHeight [[ buffer(4) ]],
 
-        device float* out  [[ buffer(5) ]],
-  const device int& outWidth [[ buffer(6) ]],
-  const device int& outHeight [[ buffer(7) ]],
+        device float* out       [[ buffer(5) ]],
+  const device int&   outWidth  [[ buffer(6) ]],
+  const device int&   outHeight [[ buffer(7) ]],
 
-  const device int& strideX [[ buffer(8) ]],
-  const device int& strideY [[ buffer(9) ]],
+  const device int&   strideX   [[ buffer(8) ]],
+  const device int&   strideY   [[ buffer(9) ]],
 
-  const device int& paddingX [[ buffer(10) ]],
-  const device int& paddingY [[ buffer(11) ]],
+  const device int&   paddingX  [[ buffer(10) ]],
+  const device int&   paddingY  [[ buffer(11) ]],
 
-  const        uint   index   [[ thread_position_in_grid ]]
+  const        uint   index     [[ thread_position_in_grid ]]
 ) {
   float sum = 0.0f;
   
@@ -114,4 +114,18 @@ using namespace metal;
     }
   }
   out[index] = sum / (kerWidth * kerHeight);
+}
+
+[[kernel]] void reduceSum(
+  const device float* in        [[ buffer(0) ]],
+  const device uint&  inLength  [[ buffer(1) ]],
+  const device uint&  width     [[ buffer(2) ]],
+        device float* out       [[ buffer(3) ]],
+  const        uint   index     [[ thread_position_in_grid ]]
+) {
+  float sum = 0.0f;
+  for (uint i = 0; i < width && index * width + i < inLength; ++i) {
+    sum += in[index * width + i];
+  }
+  out[index] = sum;
 }
