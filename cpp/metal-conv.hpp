@@ -39,7 +39,26 @@ public:
       const unsigned int paddingX = 0,
       const unsigned int paddingY = 0);
 
+  void conv2dCPU(
+      const Mat2d<float>* input,
+      const Mat2d<float>* kernel,
+      Mat2d<float>* output,
+      const unsigned int strideX = 1,
+      const unsigned int strideY = 1,
+      const unsigned int paddingX = 0,
+      const unsigned int paddingY = 0);
+
   void maxPool(
+      const Mat2d<float>* input,
+      const unsigned int kernelWidth,
+      const unsigned int kernelHeight,
+      Mat2d<float>* output,
+      const unsigned int strideX = 1,
+      const unsigned int strideY = 1,
+      const unsigned int paddingX = 0,
+      const unsigned int paddingY = 0);
+
+  void maxPoolCPU(
       const Mat2d<float>* input,
       const unsigned int kernelWidth,
       const unsigned int kernelHeight,
@@ -59,11 +78,21 @@ public:
       const unsigned int paddingX = 0,
       const unsigned int paddingY = 0);
 
-  float reduceSum(
+  void avgPoolCPU(
+      const Mat2d<float>* input,
+      const unsigned int kernelWidth,
+      const unsigned int kernelHeight,
+      Mat2d<float>* output,
+      const unsigned int strideX = 1,
+      const unsigned int strideY = 1,
+      const unsigned int paddingX = 0,
+      const unsigned int paddingY = 0);
+
+  double reduceSum(
       const Mat2d<float>* input,
       const unsigned int width);
 
-  float reduceSumCPU(const Mat2d<float>* input);
+  double reduceSumCPU(const Mat2d<float>* input);
 
 private:
   NS::AutoreleasePool* pPool;
@@ -177,6 +206,10 @@ void MetalConv::conv2d(
   pCommandBuffer->commit();
   pCommandBuffer->waitUntilCompleted();
   callback(pCommandBuffer);
+
+  inputBuffer->release();
+  kernelBuffer->release();
+  outputBuffer->release();
 }
 
 void MetalConv::maxPool(
@@ -231,6 +264,9 @@ void MetalConv::maxPool(
   pCommandBuffer->commit();
   pCommandBuffer->waitUntilCompleted();
   callback(pCommandBuffer);
+
+  inputBuffer->release();
+  outputBuffer->release();
 }
 
 void MetalConv::avgPool(
@@ -285,9 +321,12 @@ void MetalConv::avgPool(
   pCommandBuffer->commit();
   pCommandBuffer->waitUntilCompleted();
   callback(pCommandBuffer);
+
+  inputBuffer->release();
+  outputBuffer->release();
 }
 
-float MetalConv::reduceSum(
+double MetalConv::reduceSum(
     const Mat2d<float>* input,
     const unsigned int width) {
   Mat2d<float> output;
@@ -324,8 +363,40 @@ float MetalConv::reduceSum(
   return reduceSum(&output, width);
 }
 
-float MetalConv::reduceSumCPU(const Mat2d<float>* input) {
-  float sum = 0.0f;
+void MetalConv::conv2dCPU(
+    const Mat2d<float>* input,
+    const Mat2d<float>* kernel,
+    Mat2d<float>* output,
+    const unsigned int strideX,
+    const unsigned int strideY,
+    const unsigned int paddingX,
+    const unsigned int paddingY) {
+}
+
+void maxPoolCPU(
+    const Mat2d<float>* input,
+    const unsigned int kernelWidth,
+    const unsigned int kernelHeight,
+    Mat2d<float>* output,
+    const unsigned int strideX = 1,
+    const unsigned int strideY = 1,
+    const unsigned int paddingX = 0,
+    const unsigned int paddingY = 0) {
+}
+
+void avgPoolCPU(
+    const Mat2d<float>* input,
+    const unsigned int kernelWidth,
+    const unsigned int kernelHeight,
+    Mat2d<float>* output,
+    const unsigned int strideX = 1,
+    const unsigned int strideY = 1,
+    const unsigned int paddingX = 0,
+    const unsigned int paddingY = 0) {
+}
+
+double MetalConv::reduceSumCPU(const Mat2d<float>* input) {
+  double sum = 0.0f;
   for (unsigned int i = 0; i < input->width; ++i) {
     sum += input->data[i];
   }
