@@ -475,7 +475,8 @@ void MetalConv::maxPoolCPU(
           unsigned int ix = ox * strideX + kx - paddingX;
           unsigned int iy = oy * strideY + ky - paddingY;
           if (ix >= 0 && iy >= 0 && ix < input->width && iy < input->height) {
-            max = std::max(max, input->data[iy * input->width + ix]);
+            const float tmp = input->data[iy * input->width + ix];
+            max = max > tmp ? max : tmp;
           }
         }
       }
